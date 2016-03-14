@@ -1,0 +1,22 @@
+# Export all names
+exportPattern(".")
+
+# Import all packages listed as Imports or Depends
+import(
+  survival,
+  Formula
+)
+
+importFrom("graphics", "legend", "matplot")
+importFrom("stats", "formula", "model.extract", "model.matrix", "nlm",
+             "pchisq", "pnorm", "terms")
+
+
+S3method(print, thregI)
+S3method(print, thregIcure)
+S3method(hr, thregI)
+S3method(hr, thregIcure)
+S3method(plot, thregI)
+S3method(plot, thregIcure)
+S3method(predict, thregI)
+S3method(predict, thregIcure)
