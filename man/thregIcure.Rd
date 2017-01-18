@@ -9,7 +9,7 @@ thregIcure(formula, data)
 }
 
 \arguments{
-  \item{formula}{a formula object, which has the similar format to that in the thregI(). There are two | operators, on the left-hand side | operator is used for the linear regression function of \eqn{ln{y_0}} and specifing explaination variables of \eqn{\mu}. On the right of right-hand side | operator is used for specifing explaination variables of \eqn{logit (p0)}. A constant \eqn{ln{y_0}}, \eqn{\mu} or \eqn{logit (p0)} is allowed.}
+  \item{formula}{a formula object, which has the similar format to that in the thregI(). There are two | operators, on the left-hand side | operator is used for the linear regression function of \eqn{ln{y_0}} and specifing explaination variables of \eqn{\mu}. On the right of right-hand side | operator is used for specifing explaination variables of \eqn{logit (p)}. A constant \eqn{ln{y_0}}, \eqn{\mu} or \eqn{logit (p)} is allowed.}
 
   \item{data}{a data frame has the same format as that in the thregI().}
 }
@@ -23,7 +23,7 @@ hdsd$f.noadyn=factor(hdsd$Noadyn)
 
 #fit the threshold regression cure-rate model
 #the covariates are TR360, Noadyn, Sex and Age
-fit<-thregIcure(Surv(Left, Right, type='interval2')~f.noadyn|TR360|Sex+Age, data=hdsd)
+fit<-thregIcure(Surv(left, right, type='interval2')~f.noadyn|TR360|Sex+Age, data=hdsd)
 fit
 #note that p-value of the goodness of fit test return by thregIcure function
 }

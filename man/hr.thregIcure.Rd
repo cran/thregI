@@ -27,7 +27,7 @@ hdsd$f.noadyn=factor(hdsd$Noadyn)
 
 #fit the threshold regression cure-rate model
 #the covariates are TR360, Noadyn, Sex and Age
-fit<-thregIcure(Surv(Left, Right, type='interval2')~f.noadyn|TR360|Sex+Age, data=hdsd)
+fit<-thregIcure(Surv(left, right, type='interval2')~f.noadyn|TR360|Sex+Age, data=hdsd)
 
 #calculate the hazard ratios for categorical variable Noadyn
 #specified scenario of TR360=1.5, Male, Age=30 at time one

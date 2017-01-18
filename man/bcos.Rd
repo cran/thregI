@@ -10,6 +10,7 @@ bcos
 }
 \format{
   \tabular{ll}{
+     id:\tab subject recorded in the data set\cr
     left:\tab breast cancer status return with a changed status after time \eqn{L}\cr
     right:\tab breast cancer status return with a changed status after time \eqn{R}\cr
     treatment:\tab Radiation = radiation therapy, RadChemo = radiation therapy with chemotherapy\cr

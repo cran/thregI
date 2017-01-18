@@ -22,8 +22,10 @@ Maintainer: Man-Hua Chen < mchen@tku.edu.tw >
 \references{
 Xiao T, Whitmore GA, He X and Lee M-LT. (2015) The R Package threg to Implement Threshold Regression Models. \emph{Journal of Statistical Software} 66, 1141-1156.
 
-Xiao T. (2013) \emph{threg: Threshold Regression}. R~package version 1.0.3, URL \url{http://CRAN.R-project.org/package=threg}.
+Xiao T. (2013) \emph{threg: Threshold Regression}. R~package version 1.0.3, URL \url{https://CRAN.R-project.org/package=threg}.
+
 }
+
 
 
 \examples{

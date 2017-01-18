@@ -98,7 +98,7 @@ function (object,timevalue,scenario,...)
 		#choose the right position of scenario values to combine
 		positionpick_lamda=judgematrix_lamda%*%c(1:length(scenario_value))
 		lamda<-scenario_value[positionpick_lamda]%*%object$coef[(length(object$lny0)+length(object$mu)+1):(length(object$lny0)+length(object$mu)+length(object$lamda))]
-		p0<-exp(lamda)/(1+exp(lamda))
+		p<-exp(lamda)/(1+exp(lamda))
 		#........................
 
 
@@ -107,7 +107,7 @@ function (object,timevalue,scenario,...)
 		dim(mu)<-NULL
 		#...............
 		dim(lamda)<-NULL
-		dim(p0)<-NULL
+		dim(p)<-NULL
 		#..................
 
 		y0<-c(rep(y0,length(timevalue)))
@@ -115,7 +115,7 @@ function (object,timevalue,scenario,...)
 		mu<-c(rep(mu,length(timevalue)))
 		#...........................
 		lamda<-c(rep(lamda,length(timevalue)))
-		p0<-c(rep(p0,length(timevalue)))
+		p<-c(rep(p,length(timevalue)))
 		#................................
 
 	}
@@ -153,17 +153,17 @@ function (object,timevalue,scenario,...)
 		dim(mu)<-NULL
 		#...............
 		dim(lamda)<-NULL
-		dim(p0)<-NULL
+		dim(p)<-NULL
 		#..................
 
 	}
 	lenth_timevalue<-length(timevalue)
 
-	f<-p0*exp((lny0-.5*(log(2*pi*(timevalue^3))+(y0+mu*timevalue)^2/timevalue)))
-	S<-p0*exp(log(pnorm((mu*timevalue+y0)/sqrt(timevalue))-exp(-2*y0*mu)*pnorm((mu*timevalue-y0)/sqrt(timevalue))))+(1-p0)
+	f<-p*exp((lny0-.5*(log(2*pi*(timevalue^3))+(y0+mu*timevalue)^2/timevalue)))
+	S<-p*exp(log(pnorm((mu*timevalue+y0)/sqrt(timevalue))-exp(-2*y0*mu)*pnorm((mu*timevalue-y0)/sqrt(timevalue))))+(1-p)
 	h<-f/S
 
-        table<-cbind(timevalue,y0,mu,lamda,p0,f,S,h)
+        table<-cbind(timevalue,y0,mu,lamda,p,f,S,h)
 
 	#rownames(table)<-c(timevalue)
         table

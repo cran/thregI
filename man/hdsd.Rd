@@ -10,12 +10,13 @@ hdsd
 }
 \format{
   \tabular{ll}{
+    id:\tab subject recorded in the data set\cr
     Age:\tab recorded age (ranged from 20 to 54)\cr
     Sex:\tab (males = 1; females = 0)\cr
     TR360:\tab (ranged from 1.04 to 1.89)\cr
     Noadyn:\tab (ambulatory, Noadyn=1; lower body adynamic, Noadyn=0)\cr
-    Left:\tab return with a grade IV VGE changed status after time \eqn{L}\cr
-    Right:\tab return with a grade IV VGE changed status before time \eqn{R}\cr
+    right:\tab return with a grade IV VGE changed status before time \eqn{R}\cr
+    left:\tab return with a grade IV VGE changed status after time \eqn{L}\cr
   }
 }
 

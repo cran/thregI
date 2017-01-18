@@ -25,30 +25,36 @@ function (formula,data)
  x_lny0<-model.matrix(f1, data, rhs=1)
  x_mu<-model.matrix(f1, data, rhs=2)
  x_lamda<-model.matrix(f1, data, rhs=3)
+ k<-dim(x_lamda)[2]
  left<-Y[,1]
  right<-Y[,2]
- delta1=matrix(,length(left),1)
- delta2=matrix(,length(left),1)
-#right_max=2*max(right[right!=Inf],na.rm=TRUE)
- right_max=10*max(right[right!=Inf])
- for (i in 1 :length(left)){
-#if (is.na(right[i])|right[i]=="Inf") {right[i]=right_max
-#if (right[i]==1) {right[i]=right_max
-#if (right[i]<left[i]|right[i]=="Inf") {right[i]=right_max
-  if (right[i]=="Inf") {right[i]=right_max
-                         delta1[i]=0
-                         delta2[i]=0}
-   else if (left[i]==0) {delta1[i]=1
-                         delta2[i]=0}
-   else {delta1[i]=0
-         delta2[i]=1}
- }
+ delta<-Y[,3] #delta=1:event, delta=3:left/interval,right
+              #since left=NA delta=2, right=NA delta=0
+              #but our dateset doesn't have NA
 
- # fix the bug of exact times ................................................................
+ ####################################
+ #(0,R]---->delta=3, left=0, right=R
+ #(L,Inf]-->delta=3, left=L, right=Inf
+ #(L,R]---->delta=3, left=L, right=R
+ #(a,a]---->delta=1, left=a, right=1
+ ###################################
+ delta3=matrix(0,length(left),1)
+ # fix the exact times ................................................................
  for (i in 1 :length(left))
- {if (right[i]==1 && left[i]>=1) {right[i]=left[i]
- left[i]=max(left[i]-0.000001,0)}
+ {
+   if (delta[i]==1) {right[i]=left[i]  #right=a instead of 1
+   #left[i]=max(left[i]-0.000001,0)     #extend the exact time to be a small interval in order to ingore the problem of log(0)
+   delta3[i]=1}                        #delta3=1 for exact time
  }
+ delta1=matrix(0,length(left),1)
+ delta2=matrix(0,length(left),1)
+ right_max=2*max(right[right!=Inf])
+ for (i in 1 :length(left)){
+   if (right[i]=="Inf") { right[i]=right_max}
+   else if (left[i]==0) { delta1[i]=1 }   #delta1=1 for left censoring
+   else if (delta[i]==3){ delta2[i]=1 }   #delta2=1 for interval censoring
+ }                                        #delta1=delta2=delta3=0 for right censoring
+
  lny0<-function(para_lny0){x_lny0%*%para_lny0}
  mu<-function(para_mu){x_mu%*%para_mu}
  lamda<-function(para_lamda){x_lamda%*%para_lamda}
@@ -67,45 +73,57 @@ function (formula,data)
    pnorm((1-d(para)*left)/sqrt(v(para)*left))-exp(2*d(para)/v(para))*pnorm(-(1+d(para)*left)/sqrt(v(para)*left))
  }
 
-sv<-function(para){
-   pnorm((1-d(para)*right)/sqrt(v(para)*right))-exp(2*d(para)/v(para))*pnorm(-(1+d(para)*right)/sqrt(v(para)*right))
-}
+ #sv<-function(para){
+ #  pnorm((1-d(para)*right)/sqrt(v(para)*right))-exp(2*d(para)/v(para))*pnorm(-(1+d(para)*right)/sqrt(v(para)*right))
+ #}
 
-cu<-function(para){
-  para_lamda=para[(length(dimnames(x_lny0)[[2]])+length(dimnames(x_mu)[[2]])+1):(length(dimnames(x_lny0)[[2]])+length(dimnames(x_mu)[[2]])+length(dimnames(x_lamda)[[2]]))]
-  exp(lamda(para_lamda))/(1+exp(lamda(para_lamda)))
-}
+ Fv<-function(para){
+   pnorm(-(1-d(para)*right)/sqrt(v(para)*right))+exp(2*d(para)/v(para))*pnorm(-(1+d(para)*right)/sqrt(v(para)*right))
+ }
 
-logf0<-function(para){
-  -sum(delta1*log(1-sv(para)))-sum(delta2*log(su(para)-sv(para)))-sum((1-delta1-delta2)*log(su(para)))
-                     }
-p0<-rep(0,(length(dimnames(x_lny0)[[2]])+length(dimnames(x_mu)[[2]])))
-est0<-nlm(logf0, p0, hessian = TRUE)
-loglik0 = (-1)*est0$minimum
+
+ cu<-function(para){
+   para_lamda=para[(length(dimnames(x_lny0)[[2]])+length(dimnames(x_mu)[[2]])+1):(length(dimnames(x_lny0)[[2]])+length(dimnames(x_mu)[[2]])+length(dimnames(x_lamda)[[2]]))]
+   exp(lamda(para_lamda))/(1+exp(lamda(para_lamda)))
+ }
+
+ logdf<-function(para){
+      -.5*(log(2*pi*v(para)*(right^3))+(d(para)*right-1)^2/(v(para)*right))
+ }
+
+ logf0<-function(para) {
+ #-sum(delta1*log(1-sv(para)))-sum(delta2*log(su(para)-sv(para)))-sum((1-delta1-delta2-delta3)*log(su(para)))-sum(delta3*logdf(para))
+  -sum(delta1*log(Fv(para)))-sum(delta2*log(su(para)+Fv(para)-0.9999999))-sum((1-delta1-delta2-delta3)*log(su(para)))-sum(delta3*logdf(para))
+ }
+
+ p0<-rep(0,(length(dimnames(x_lny0)[[2]])+length(dimnames(x_mu)[[2]])))
+ est0<-nlm(logf0, p0, hessian = TRUE)
+ loglik0 = (-1)*est0$minimum
 
  logf<-function(para) {
- -sum(delta1*log(cu(para)*(1-sv(para))))-sum(delta2*log(cu(para)*(su(para)-sv(para))))-sum((1-delta1-delta2)*log((1-cu(para))+cu(para)*su(para)))
-                      }
+ #-sum(delta1*log(cu(para)*(1-sv(para))))-sum(delta2*log(cu(para)*(su(para)-sv(para))))-sum((1-delta1-delta2)*log((1-cu(para))+cu(para)*su(para)))-sum(delta3*logdf(para))-sum(delta3*log(cu(para)))
+ #-sum(delta1*log(cu(para)*(1-sv(para))))-sum(delta2*log(cu(para)*(su(para)-sv(para))))-sum((1-delta1-delta2)*log((1-cu(para))+cu(para)*su(para)))-sum(delta3*log(cu(para)*exp(logdf(para))))
+  -sum(delta1*log(cu(para)*Fv(para)))-sum(delta2*log(cu(para)*(su(para)+Fv(para)-0.9999999)))-sum((1-delta1-delta2)*log((1-cu(para))+cu(para)*su(para)))-sum(delta3*log(cu(para)*exp(logdf(para))))
+ }
 
-p<-rep(0,(length(dimnames(x_lny0)[[2]])+length(dimnames(x_mu)[[2]])+length(dimnames(x_lamda)[[2]])))
+ p<-rep(0,(length(dimnames(x_lny0)[[2]])+length(dimnames(x_mu)[[2]])+length(dimnames(x_lamda)[[2]])))
+ est<-nlm(logf, p, hessian = TRUE) #nlm: minimize function logf
+ names(est$estimate) <-c(paste("lny0:",dimnames(x_lny0)[[2]]),paste("mu:",dimnames(x_mu)[[2]]),paste("logit(p):",dimnames(x_lamda)[[2]]))
+ loglik = (-1)*est$minimum
+ #Pvalue = 1-pchisq(2*(loglik-loglik0),df=1)
+ #print(paste('Goodness of fit test: p-value =',Pvalue,sep=" "))
 
-est<-nlm(logf, p, hessian = TRUE)
-names(est$estimate) <-c(paste("lny0:",dimnames(x_lny0)[[2]]),paste("mu:",dimnames(x_mu)[[2]]),paste("logit(p0):",dimnames(x_lamda)[[2]]))
-loglik = (-1)*est$minimum
-#Pvalue = 1-pchisq(2*(loglik-loglik0),df=1)
-#print(paste('Goodness of fit test: p-value =',Pvalue,sep=" "))
-
-fit<-list(coefficients  = est$estimate,
+ fit<-list(coefficients  = est$estimate,
            var    = solve(est$hessian),
            loglik = loglik,
            AIC    = (-2)*loglik+2*(length(dimnames(x_lny0)[[2]])+length(dimnames(x_mu)[[2]])+length(dimnames(x_lamda)[[2]])),
-           Pvalue = 1-pchisq(2*(loglik-loglik0),df=1),
+           Pvalue = 1-pchisq(2*(loglik-loglik0),df=k),
            iter   = est$iterations,
            call   = cl,
            mf     = mf,
            lny0   = dimnames(x_lny0)[[2]],
            mu     = dimnames(x_mu)[[2]],
-          lamda  = dimnames(x_lamda)[[2]])
+           lamda  = dimnames(x_lamda)[[2]])
  class(fit) <- 'thregIcure'
  fit
 }
