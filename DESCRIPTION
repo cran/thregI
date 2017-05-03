@@ -1,9 +1,9 @@
 Package: thregI
 Type: Package
-Title: Threshold Regression for Interval Censored Data with Cure-Rate
-        or without Cure-Rate Model
-Version: 1.0.2
-Date: 2017-1-11
+Title: Threshold Regression for Interval-Censored Data with a Cure Rate
+        Option
+Version: 1.0.3
+Date: 2017-5-02
 Author: Man-Hua Chen
 Maintainer: Man-Hua Chen <mchen@mail.tku.edu.tw>
 Depends: survival, Formula
@@ -11,6 +11,6 @@ Description: Fit a threshold regression model for Interval Censored Data based o
 License: GPL-2
 LazyLoad: yes
 NeedsCompilation: no
-Packaged: 2017-01-18 11:40:24 UTC; Manhua
+Packaged: 2017-05-03 13:43:01 UTC; Manhua
 Repository: CRAN
-Date/Publication: 2017-01-18 18:07:53
+Date/Publication: 2017-05-03 14:50:41 UTC

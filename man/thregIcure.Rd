@@ -23,7 +23,8 @@ hdsd$f.noadyn=factor(hdsd$Noadyn)
 
 #fit the threshold regression cure-rate model
 #the covariates are TR360, Noadyn, Sex and Age
-fit<-thregIcure(Surv(left, right, type='interval2')~f.noadyn|TR360|Sex+Age, data=hdsd)
+fit<-thregIcure(Surv(left, right, type='interval2')~f.noadyn+TR360|f.noadyn+TR360|f.noadyn+TR360+
+     Sex+Age, data=hdsd)
 fit
 #note that p-value of the goodness of fit test return by thregIcure function
 }

@@ -109,12 +109,14 @@ function (x,var,scenario,graph,nolegend=0,nocolor=0,...)
   dim(f)<-c(length(dimnames(scenario_value_hr)[[2]])+1,lenth_timevalue)
 	dt_graph<-cbind(timevalue,t(f))
 	y_label="Estimated f(t)"
+	y_lim=c(0,max(f, na.rm = T))
 	legend_pos="topright"
 	}
 	else if(graph_type=="sv"){
 	        dim(S)<-c(length(dimnames(scenario_value_hr)[[2]])+1,lenth_timevalue)
         	dt_graph<-cbind(timevalue,t(S))
 		y_label="Estimated S(t)"
+		y_lim=c(0,max(S, na.rm = T)+0.05)
 		legend_pos="topright"
 		#legend_pos="topleft"
 	}
@@ -122,14 +124,15 @@ function (x,var,scenario,graph,nolegend=0,nocolor=0,...)
 	        dim(h)<-c(length(dimnames(scenario_value_hr)[[2]])+1,lenth_timevalue)
         	dt_graph<-cbind(timevalue,t(h))
 		y_label="Estimated h(t)"
-		#legend_pos="topright"
-		legend_pos="topleft"
+		y_lim=c(0,max(h, na.rm = T))
+		legend_pos="topright"
+		#legend_pos="topleft"
 	}
 	if(nocolor==0) {
-		matplot(dt_graph[order(timevalue),1],dt_graph[order(timevalue),2:(length(dimnames(scenario_value_hr)[[2]])+2)],type = "l",lty=1:(length(dimnames(scenario_value_hr)[[2]])+1),xlab="time",ylab=y_label)
+		matplot(dt_graph[order(timevalue),1],dt_graph[order(timevalue),2:(length(dimnames(scenario_value_hr)[[2]])+2)],type = "l",lty=1:(length(dimnames(scenario_value_hr)[[2]])+1),xlab="time",ylab=y_label,ylim=y_lim)
 	}
 	else {
-		matplot(dt_graph[order(timevalue),1],dt_graph[order(timevalue),2:(length(dimnames(scenario_value_hr)[[2]])+2)],type = "l",col=1,lty=1:(length(dimnames(scenario_value_hr)[[2]])+1),xlab="time",ylab=y_label)
+		matplot(dt_graph[order(timevalue),1],dt_graph[order(timevalue),2:(length(dimnames(scenario_value_hr)[[2]])+2)],type = "l",col=1,lty=1:(length(dimnames(scenario_value_hr)[[2]])+1),xlab="time",ylab=y_label,ylim=y_lim)
 	}
 
 	if(nolegend==0) {

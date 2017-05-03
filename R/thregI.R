@@ -66,9 +66,9 @@ function (formula,data)
  su<-function(para){
   pnorm((1-d(para)*left)/sqrt(v(para)*left))-exp(2*d(para)/v(para))*pnorm(-(1+d(para)*left)/sqrt(v(para)*left))
  }
- #sv<-function(para){
- # pnorm((1-d(para)*right)/sqrt(v(para)*right))-exp(2*d(para)/v(para))*pnorm(-(1+d(para)*right)/sqrt(v(para)*right))
- #}
+ sv<-function(para){
+  pnorm((1-d(para)*right)/sqrt(v(para)*right))-exp(2*d(para)/v(para))*pnorm(-(1+d(para)*right)/sqrt(v(para)*right))
+ }
  Fv<-function(para){
   pnorm(-(1-d(para)*right)/sqrt(v(para)*right))+exp(2*d(para)/v(para))*pnorm(-(1+d(para)*right)/sqrt(v(para)*right))
  }
@@ -76,12 +76,14 @@ function (formula,data)
   -.5*(log(2*pi*v(para)*(right^3))+(d(para)*right-1)^2/(v(para)*right))
  }
  logf<-function(para) {
- #-sum(delta1*log(1-sv(para)))-sum(delta2*log(su(para)-sv(para)))-sum((1-delta1-delta2-delta3)*log(su(para)))-sum(delta3*logdf(para))
-  -sum(delta1*log(Fv(para)))-sum(delta2*log(su(para)+Fv(para)-0.9999999))-sum((1-delta1-delta2-delta3)*log(su(para)))-sum(delta3*logdf(para))
+-sum(delta1*log(1-sv(para)))-sum(delta2*log(su(para)-sv(para)), na.rm = TRUE)-sum((1-delta1-delta2-delta3)*log(su(para)))-sum(delta3*logdf(para))
+#-sum(delta1*log(Fv(para)))-sum(delta2*log(su(para)+Fv(para)-0.9999999))-sum((1-delta1-delta2-delta3)*log(su(para)))-sum(delta3*logdf(para))
+#-sum(delta1*log(Fv(para)))-sum(delta2*log(su(para)+Fv(para)-0.9999999))-sum((1-delta1-delta2-delta3)*log(su(para)))-sum(delta3*logdf(para))
  }
 
  p<-rep(0,(length(dimnames(x_lny0)[[2]])+length(dimnames(x_mu)[[2]])))
  est<-nlm(logf, p, hessian = TRUE)
+
  names(est$estimate) <-c(paste("lny0:",dimnames(x_lny0)[[2]]),paste("  mu:",dimnames(x_mu)[[2]]))
  loglik = (-1)*est$minimum
  

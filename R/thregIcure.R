@@ -73,9 +73,9 @@ function (formula,data)
    pnorm((1-d(para)*left)/sqrt(v(para)*left))-exp(2*d(para)/v(para))*pnorm(-(1+d(para)*left)/sqrt(v(para)*left))
  }
 
- #sv<-function(para){
- #  pnorm((1-d(para)*right)/sqrt(v(para)*right))-exp(2*d(para)/v(para))*pnorm(-(1+d(para)*right)/sqrt(v(para)*right))
- #}
+ sv<-function(para){
+   pnorm((1-d(para)*right)/sqrt(v(para)*right))-exp(2*d(para)/v(para))*pnorm(-(1+d(para)*right)/sqrt(v(para)*right))
+ }
 
  Fv<-function(para){
    pnorm(-(1-d(para)*right)/sqrt(v(para)*right))+exp(2*d(para)/v(para))*pnorm(-(1+d(para)*right)/sqrt(v(para)*right))
@@ -92,8 +92,8 @@ function (formula,data)
  }
 
  logf0<-function(para) {
- #-sum(delta1*log(1-sv(para)))-sum(delta2*log(su(para)-sv(para)))-sum((1-delta1-delta2-delta3)*log(su(para)))-sum(delta3*logdf(para))
-  -sum(delta1*log(Fv(para)))-sum(delta2*log(su(para)+Fv(para)-0.9999999))-sum((1-delta1-delta2-delta3)*log(su(para)))-sum(delta3*logdf(para))
+ -sum(delta1*log(1-sv(para)))-sum(delta2*log(su(para)-sv(para)), na.rm = TRUE)-sum((1-delta1-delta2-delta3)*log(su(para)))-sum(delta3*logdf(para))
+ #-sum(delta1*log(Fv(para)))-sum(delta2*log(su(para)+Fv(para)-0.9999999))-sum((1-delta1-delta2-delta3)*log(su(para)))-sum(delta3*logdf(para))
  }
 
  p0<-rep(0,(length(dimnames(x_lny0)[[2]])+length(dimnames(x_mu)[[2]])))
@@ -101,9 +101,9 @@ function (formula,data)
  loglik0 = (-1)*est0$minimum
 
  logf<-function(para) {
- #-sum(delta1*log(cu(para)*(1-sv(para))))-sum(delta2*log(cu(para)*(su(para)-sv(para))))-sum((1-delta1-delta2)*log((1-cu(para))+cu(para)*su(para)))-sum(delta3*logdf(para))-sum(delta3*log(cu(para)))
+ -sum(delta1*log(cu(para)*(1-sv(para))))-sum(delta2*log(cu(para)*(su(para)-sv(para))), na.rm = TRUE)-sum((1-delta1-delta2)*log((1-cu(para))+cu(para)*su(para)))-sum(delta3*logdf(para))-sum(delta3*log(cu(para)))
  #-sum(delta1*log(cu(para)*(1-sv(para))))-sum(delta2*log(cu(para)*(su(para)-sv(para))))-sum((1-delta1-delta2)*log((1-cu(para))+cu(para)*su(para)))-sum(delta3*log(cu(para)*exp(logdf(para))))
-  -sum(delta1*log(cu(para)*Fv(para)))-sum(delta2*log(cu(para)*(su(para)+Fv(para)-0.9999999)))-sum((1-delta1-delta2)*log((1-cu(para))+cu(para)*su(para)))-sum(delta3*log(cu(para)*exp(logdf(para))))
+ # -sum(delta1*log(cu(para)*Fv(para)))-sum(delta2*log(cu(para)*(su(para)+Fv(para)-0.9999999)))-sum((1-delta1-delta2)*log((1-cu(para))+cu(para)*su(para)))-sum(delta3*log(cu(para)*exp(logdf(para))))
  }
 
  p<-rep(0,(length(dimnames(x_lny0)[[2]])+length(dimnames(x_mu)[[2]])+length(dimnames(x_lamda)[[2]])))

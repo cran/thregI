@@ -1,15 +1,15 @@
-3df4c829862e621b3a9288cb00bebde2 *DESCRIPTION
+5c08c48e77eba05a74cb9338c2eaacfe *DESCRIPTION
 66b401892bfdf47e0bbcf615eef9866a *NAMESPACE
 a1dc5df43348a0ab4920c95699a5d1f6 *R/hr.thregI.R
 9a53c3084fb2faffd10e168401771872 *R/hr.thregIcure.R
-9ef5672d139b946231ab1e9292cdc501 *R/plot.thregI.R
-19c956c7867738b41f9b0ce4753bc158 *R/plot.thregIcure.R
+035c75b25e2a82e4d6ff1dd815357313 *R/plot.thregI.R
+370e8ad08fcaea20c64e7024796d7bf2 *R/plot.thregIcure.R
 8d470308b5d660a8f30d1dedf9544d7e *R/predict.thregI.R
 dc2fbe94e0a22d1cbc03d403336d6460 *R/predict.thregIcure.R
 5b0147dbdf29011091adbde72f216b4c *R/print.thregI.R
 6c756afa7f04eb9d875d3b8abafb2211 *R/print.thregIcure.R
-a20e1c29974649ce588a43ba2da9a800 *R/thregI.R
-750d6eafca48b0852509714db5a54593 *R/thregIcure.R
+5a0ae846ec4668734f6efd0e5eff73c0 *R/thregI.R
+e85baa4f2fea4cf57baab90eed341d9c *R/thregIcure.R
 4c1e8267f0b86d582a3582bd2e8e1c9e *data/bcos.RData
 6c46981c8e213b44b957e71f13fc1ca5 *data/hdsd.RData
 fd6055915c286abc9bf25a8ebac9810e *man/bcos.Rd
@@ -23,4 +23,4 @@ fe86e3d04ef1f28b2702c29a2f390f03 *man/predict.thregIcure.Rd
 cb5c31dcf3e473136fb09e14725cfb15 *man/print.thregI.Rd
 062ccb3b772ff639d25c749497009830 *man/print.thregIcure.Rd
 9d2e6dd7a8f5c908aa9f9c3bba8f3439 *man/thregI.Rd
-7dc1a99f7e4a238ccc26df1d8e03fa60 *man/thregIcure.Rd
+4c009ceec4d0912c6a898563ecb1006a *man/thregIcure.Rd

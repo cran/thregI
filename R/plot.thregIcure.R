@@ -57,9 +57,6 @@ function (x,var,scenario,graph,nolegend=0,nocolor=0,...)
 
 	names(scenario_value)<-scenario_covariate
 
-
-
-
         m_hr<-match(c("var"), names(para), 0)
 	hr_var<-as.character(para[[m_hr]])
         if (!is.factor(x$mf[[hr_var]])) stop("The variable for the hazard ratio calculation should be a factor variable")
@@ -147,33 +144,37 @@ function (x,var,scenario,graph,nolegend=0,nocolor=0,...)
 	f<-p*exp((lny0-.5*(log(2*pi*(timevalue_rep^3))+(y0+mu*timevalue_rep)^2/timevalue_rep)))
 	S<-p*exp(log(pnorm((mu*timevalue_rep+y0)/sqrt(timevalue_rep))-exp(-2*y0*mu)*pnorm((mu*timevalue_rep-y0)/sqrt(timevalue_rep))))+(1-p)
 	h<-f/S
-
   if(m_graph!=0) 	graph_type<-para[[m_graph]]
 	if(graph_type=="ds"){
 	        dim(f)<-c(length(dimnames(scenario_value_hr)[[2]])+1,lenth_timevalue)
         	dt_graph<-cbind(timevalue,t(f))
 		y_label="Estimated f(t)"
+		y_lim=c(0,max(f, na.rm = T))
 		legend_pos="topright"
 	}
 	else if(graph_type=="sv"){
 	        dim(S)<-c(length(dimnames(scenario_value_hr)[[2]])+1,lenth_timevalue)
         	dt_graph<-cbind(timevalue,t(S))
 		y_label="Estimated S(t)"
+		y_lim=c(0,max(S, na.rm = T)+0.05)
 		legend_pos="topright"
 	}
 	else if(graph_type=="hz"){
 	        dim(h)<-c(length(dimnames(scenario_value_hr)[[2]])+1,lenth_timevalue)
         	dt_graph<-cbind(timevalue,t(h))
 		y_label="Estimated h(t)"
+		y_lim=c(0,max(h, na.rm = T))
 		legend_pos="topright"
 		#legend_pos="topleft"
 	}
 	if(nocolor==0) {
 
-		matplot(dt_graph[order(timevalue),1],dt_graph[order(timevalue),2:(length(dimnames(scenario_value_hr)[[2]])+2)],type = "l",lty=1:(length(dimnames(scenario_value_hr)[[2]])+1),xlab="time",ylab=y_label)
+		matplot(dt_graph[order(timevalue),1],dt_graph[order(timevalue),2:(length(dimnames(scenario_value_hr)[[2]])+2)],type = "l",lty=1:(length(dimnames(scenario_value_hr)[[2]])+1), xlab="time", ylab=y_label,
+		        ylim=y_lim)
 	}
 	else {
-		matplot(dt_graph[order(timevalue),1],dt_graph[order(timevalue),2:(length(dimnames(scenario_value_hr)[[2]])+2)],type = "l",col=1,lty=1:(length(dimnames(scenario_value_hr)[[2]])+1),xlab="time",ylab=y_label)
+		matplot(dt_graph[order(timevalue),1],dt_graph[order(timevalue),2:(length(dimnames(scenario_value_hr)[[2]])+2)],type = "l",col=1,lty=1:(length(dimnames(scenario_value_hr)[[2]])+1), xlab="time", ylab=y_label,
+		        ylim=y_lim)
 	}
 
 
