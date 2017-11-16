@@ -28,32 +28,37 @@ function (formula,data)
  k<-dim(x_lamda)[2]
  left<-Y[,1]
  right<-Y[,2]
- delta<-Y[,3] #delta=1:event, delta=3:left/interval,right
-              #since left=NA delta=2, right=NA delta=0
-              #but our dateset doesn't have NA
-
+ delta<-Y[,3]  #delta=1:event, delta=3:left/interval delta=0:right
+               #no delta=2 for left=NA since our dateset no NA
  ####################################
  #(0,R]---->delta=3, left=0, right=R
- #(L,Inf]-->delta=3, left=L, right=Inf
- #(L,R]---->delta=3, left=L, right=R
+ #(a,b]---->delta=3, left=a, right=b
+ #(L,Inf]-->delta=0, left=L, right=1
  #(a,a]---->delta=1, left=a, right=1
  ###################################
  delta3=matrix(0,length(left),1)
- # fix the exact times ................................................................
+ # fix the exact times .............................................................
  for (i in 1 :length(left))
  {
    if (delta[i]==1) {right[i]=left[i]  #right=a instead of 1
-   #left[i]=max(left[i]-0.000001,0)     #extend the exact time to be a small interval in order to ingore the problem of log(0)
-   delta3[i]=1}                        #delta3=1 for exact time
+                     delta3[i]=1}      #delta3=1 for exact time
  }
+ #right_max=10*max(right[right!=Inf])
+ right_max=10*max(right)
  delta1=matrix(0,length(left),1)
  delta2=matrix(0,length(left),1)
- right_max=2*max(right[right!=Inf])
  for (i in 1 :length(left)){
-   if (right[i]=="Inf") { right[i]=right_max}
+   #if (right[i]==1) { right[i]=right_max }
+   if (delta[i]==0) {right[i]=right_max}
    else if (left[i]==0) { delta1[i]=1 }   #delta1=1 for left censoring
    else if (delta[i]==3){ delta2[i]=1 }   #delta2=1 for interval censoring
  }                                        #delta1=delta2=delta3=0 for right censoring
+####################################
+#(0,R]---->delta1=1, left=0, right=R
+#(a,b]---->delta2=1, left=a, right=b
+#(L,Inf]-->delta1=delta2=delta3=0, left=L, right=Inf
+#(a,a]---->delta3=1, left=a, right=a
+###################################
 
  lny0<-function(para_lny0){x_lny0%*%para_lny0}
  mu<-function(para_mu){x_mu%*%para_mu}
@@ -77,11 +82,6 @@ function (formula,data)
    pnorm((1-d(para)*right)/sqrt(v(para)*right))-exp(2*d(para)/v(para))*pnorm(-(1+d(para)*right)/sqrt(v(para)*right))
  }
 
- Fv<-function(para){
-   pnorm(-(1-d(para)*right)/sqrt(v(para)*right))+exp(2*d(para)/v(para))*pnorm(-(1+d(para)*right)/sqrt(v(para)*right))
- }
-
-
  cu<-function(para){
    para_lamda=para[(length(dimnames(x_lny0)[[2]])+length(dimnames(x_mu)[[2]])+1):(length(dimnames(x_lny0)[[2]])+length(dimnames(x_mu)[[2]])+length(dimnames(x_lamda)[[2]]))]
    exp(lamda(para_lamda))/(1+exp(lamda(para_lamda)))
@@ -93,7 +93,6 @@ function (formula,data)
 
  logf0<-function(para) {
  -sum(delta1*log(1-sv(para)))-sum(delta2*log(su(para)-sv(para)), na.rm = TRUE)-sum((1-delta1-delta2-delta3)*log(su(para)))-sum(delta3*logdf(para))
- #-sum(delta1*log(Fv(para)))-sum(delta2*log(su(para)+Fv(para)-0.9999999))-sum((1-delta1-delta2-delta3)*log(su(para)))-sum(delta3*logdf(para))
  }
 
  p0<-rep(0,(length(dimnames(x_lny0)[[2]])+length(dimnames(x_mu)[[2]])))
@@ -101,11 +100,9 @@ function (formula,data)
  loglik0 = (-1)*est0$minimum
 
  logf<-function(para) {
- -sum(delta1*log(cu(para)*(1-sv(para))))-sum(delta2*log(cu(para)*(su(para)-sv(para))), na.rm = TRUE)-sum((1-delta1-delta2)*log((1-cu(para))+cu(para)*su(para)))-sum(delta3*logdf(para))-sum(delta3*log(cu(para)))
- #-sum(delta1*log(cu(para)*(1-sv(para))))-sum(delta2*log(cu(para)*(su(para)-sv(para))))-sum((1-delta1-delta2)*log((1-cu(para))+cu(para)*su(para)))-sum(delta3*log(cu(para)*exp(logdf(para))))
- # -sum(delta1*log(cu(para)*Fv(para)))-sum(delta2*log(cu(para)*(su(para)+Fv(para)-0.9999999)))-sum((1-delta1-delta2)*log((1-cu(para))+cu(para)*su(para)))-sum(delta3*log(cu(para)*exp(logdf(para))))
+   #-sum(delta1*log(cu(para)*(1-sv(para))), na.rm = TRUE)-sum(delta2*log(cu(para)*(su(para)-sv(para))), na.rm = TRUE)-sum((1-delta1-delta2-delta3)*log((1-cu(para))+cu(para)*su(para)), na.rm = TRUE)-sum(delta3*logdf(para), na.rm = TRUE)-sum(delta3*log(cu(para)), na.rm = TRUE)
+   -sum(delta1*log(cu(para)*(1-sv(para))))-sum(delta2*log(cu(para)*(su(para)-sv(para))), na.rm = TRUE)-sum((1-delta1-delta2-delta3)*log((1-cu(para))+cu(para)*su(para)))-sum(delta3*logdf(para))-sum(delta3*log(cu(para)))
  }
-
  p<-rep(0,(length(dimnames(x_lny0)[[2]])+length(dimnames(x_mu)[[2]])+length(dimnames(x_lamda)[[2]])))
  est<-nlm(logf, p, hessian = TRUE) #nlm: minimize function logf
  names(est$estimate) <-c(paste("lny0:",dimnames(x_lny0)[[2]]),paste("mu:",dimnames(x_mu)[[2]]),paste("logit(p):",dimnames(x_lamda)[[2]]))

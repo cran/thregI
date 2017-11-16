@@ -24,33 +24,39 @@ function (formula,data)
  if (length(f2[[2]])!=3) stop(paste("Predictors for both lny0 and mu should be specified"))
  x_lny0<-model.matrix(f1, data, rhs=1)
  x_mu<-model.matrix(f1, data, rhs=2)
- left <- Y[,1]
+ left  <- Y[,1]
  right <- Y[,2]
- delta<-Y[,3] #delta=1:event, delta=3:left/interval,right
-              #since left=NA delta=2, right=NA delta=0
-              #but our dateset doesn't have NA
+ delta <- Y[,3] #delta=1:event, delta=3:left/interval delta=0:right
+                #no delta=2 for left=NA since our dateset no NA
  ####################################
  #(0,R]---->delta=3, left=0, right=R
- #(L,Inf]-->delta=3, left=L, right=Inf
+ #(a,b]---->delta=3, left=a, right=b
+ #(L,Inf]-->delta=0, left=L, right=1
  #(a,a]---->delta=1, left=a, right=1
  ###################################
  delta3=matrix(0,length(left),1)
- # fix the exact times ................................................................
+ # fix the exact times .............................................................
  for (i in 1 :length(left))
  {
    if (delta[i]==1) {right[i]=left[i]  #right=a instead of 1
-   #left[i]=max(left[i]-0.000001,0)     #extend the exact time to be a small interval in order to ingore the problem of log(0)
-       delta3[i]=1}                        #delta3=1 for exact time
+   delta3[i]=1}      #delta3=1 for exact time
  }
-
+ #right_max=10*max(right[right!=Inf])
+ right_max=10*max(right)
  delta1=matrix(0,length(left),1)
  delta2=matrix(0,length(left),1)
- right_max=10*max(right[right!=Inf])
  for (i in 1 :length(left)){
-      if (right[i]=="Inf") { right[i]=right_max}
-      else if (left[i]==0) { delta1[i]=1 }   #delta1=1 for left censoring
-      else if (delta[i]==3){ delta2[i]=1 }   #delta2=1 for interval censoring
- }                                           #delta1=delta2=delta3=0 for right censoring
+   #if (right[i]==1) { right[i]=right_max }
+   if (delta[i]==0) {right[i]=right_max}
+   else if (left[i]==0) { delta1[i]=1 }   #delta1=1 for left censoring
+   else if (delta[i]==3){ delta2[i]=1 }   #delta2=1 for interval censoring
+ }                                        #delta1=delta2=delta3=0 for right censoring
+ ####################################
+ #(0,R]---->delta1=1, left=0, right=R
+ #(a,b]---->delta2=1, left=a, right=b
+ #(L,Inf]-->delta1=delta2=delta3=0, left=L, right=Inf
+ #(a,a]---->delta3=1, left=a, right=a
+ ###################################
 
  lny0<-function(para_lny0){x_lny0%*%para_lny0}
  mu<-function(para_mu){x_mu%*%para_mu}
@@ -69,16 +75,11 @@ function (formula,data)
  sv<-function(para){
   pnorm((1-d(para)*right)/sqrt(v(para)*right))-exp(2*d(para)/v(para))*pnorm(-(1+d(para)*right)/sqrt(v(para)*right))
  }
- Fv<-function(para){
-  pnorm(-(1-d(para)*right)/sqrt(v(para)*right))+exp(2*d(para)/v(para))*pnorm(-(1+d(para)*right)/sqrt(v(para)*right))
- }
  logdf<-function(para){
   -.5*(log(2*pi*v(para)*(right^3))+(d(para)*right-1)^2/(v(para)*right))
  }
  logf<-function(para) {
 -sum(delta1*log(1-sv(para)))-sum(delta2*log(su(para)-sv(para)), na.rm = TRUE)-sum((1-delta1-delta2-delta3)*log(su(para)))-sum(delta3*logdf(para))
-#-sum(delta1*log(Fv(para)))-sum(delta2*log(su(para)+Fv(para)-0.9999999))-sum((1-delta1-delta2-delta3)*log(su(para)))-sum(delta3*logdf(para))
-#-sum(delta1*log(Fv(para)))-sum(delta2*log(su(para)+Fv(para)-0.9999999))-sum((1-delta1-delta2-delta3)*log(su(para)))-sum(delta3*logdf(para))
  }
 
  p<-rep(0,(length(dimnames(x_lny0)[[2]])+length(dimnames(x_mu)[[2]])))
@@ -86,7 +87,7 @@ function (formula,data)
 
  names(est$estimate) <-c(paste("lny0:",dimnames(x_lny0)[[2]]),paste("  mu:",dimnames(x_mu)[[2]]))
  loglik = (-1)*est$minimum
- 
+
  fit<-list(coefficients  = est$estimate,
           var    = solve(est$hessian),
           loglik = loglik,

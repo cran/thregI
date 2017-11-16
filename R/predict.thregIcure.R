@@ -162,8 +162,8 @@ function (object,timevalue,scenario,...)
 	f<-p*exp((lny0-.5*(log(2*pi*(timevalue^3))+(y0+mu*timevalue)^2/timevalue)))
 	S<-p*exp(log(pnorm((mu*timevalue+y0)/sqrt(timevalue))-exp(-2*y0*mu)*pnorm((mu*timevalue-y0)/sqrt(timevalue))))+(1-p)
 	h<-f/S
-
-        table<-cbind(timevalue,y0,mu,lamda,p,f,S,h)
+  lambda<-lamda
+        table<-cbind(timevalue,y0,mu,lambda,p,f,S,h)
 
 	#rownames(table)<-c(timevalue)
         table
